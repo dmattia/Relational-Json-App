@@ -4,6 +4,10 @@
 	text-align: center;
 }
 
+.dropify-wrapper {
+	margin-top: 20px;
+}
+
 h2 {
 	text-decoration: underline;
 }

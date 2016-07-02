@@ -5,6 +5,7 @@ window.addEventListener('load', function() {
 	setupFirebase();
 	startWatchingDatabase();
 	document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
+	$('.dropify').dropify();
 }, false);
 
 /**

@@ -5,6 +5,7 @@
 
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/css/materialize.min.css">
 	<link rel="stylesheet" href="main.css">
+	<link rel="stylesheet" href="dropify.css">
 </head>
 <body>
 	<div class="navbar-fixed">
@@ -19,7 +20,7 @@
 	</div>
 
 	<div id="container">
-		<input type="file" id="fileinput" />
+		<input type="file" class="dropify" data-max-file-size="3M" id="fileinput" data-show-remove="false" data-allowed-file-extensions="json"/>
 		<div id="main-content"></div>
 	</div>
 
@@ -29,6 +30,7 @@
 	<script src="https://www.gstatic.com/firebasejs/3.1.0/firebase-auth.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/3.1.0/firebase-database.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/3.1.0/firebase-storage.js"></script>
+	<script src="dropify.js"></script>
 	<script src="main.js"></script>
 </body>
 </html>
