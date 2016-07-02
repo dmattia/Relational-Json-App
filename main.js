@@ -80,17 +80,87 @@ function startWatchingDatabase() {
 	firebase.database().ref().child(newDataBaseKey).on('value', function(snapshot) {
 		clearCurrentTable();
 		snapshot.forEach(function(childSnapshot) {
+			var tableDiv = document.createElement("div");
 			var table = createTableForSnapshot(childSnapshot);
 			var tableHeader = document.createElement("h2");
+			var buttonGroup = createButtonGroup();
+
+			tableHeader.style.display = "inline";
+			tableDiv.style.margin = "20px";
+			tableDiv.style.position = "relative";
+
 			tableHeader.innerHTML = camelCaseToWords(childSnapshot.key);
-			$('#main-content').append(tableHeader);
-			$('#main-content').append(table);
+
+			tableDiv.appendChild(tableHeader);
+			tableDiv.appendChild(buttonGroup);
+			tableDiv.appendChild(table);
+			$('#main-content').append(tableDiv);
 		});
 	});
 
 	firebase.database().ref().child(newDataBaseKey).onDisconnect().remove();
 
 	return newDataBaseKey;
+}
+
+/**
+ * Creates a button group for editing a table.
+ * @return	An HTML div element
+ */
+function createButtonGroup() {
+	var outerDiv = document.createElement("div");
+	var mainButton = document.createElement("a");
+	var mainButtonIcon = document.createElement("i");
+	var popOutLinks = document.createElement("ul");
+	
+	outerDiv.setAttribute("class", "fixed-action-btn horizontal");
+	mainButton.setAttribute("class", "btn-floating btn-large red");
+	mainButtonIcon.setAttribute("class", "large material-icons");
+
+	outerDiv.style.float = "right";
+	outerDiv.style.display = "inline";
+	
+	mainButtonIcon.innerHTML = "menu";
+	popOutLinks.appendChild(wrapWithli(createButtonForIcon("code", "blue")));
+	popOutLinks.appendChild(wrapWithli(createButtonForIcon("mode_edit", "green")));
+	popOutLinks.appendChild(wrapWithli(createButtonForIcon("settings", "yellow")));
+
+	mainButton.appendChild(mainButtonIcon);
+	outerDiv.appendChild(mainButton);
+	outerDiv.appendChild(popOutLinks);
+
+	return outerDiv;
+}
+
+/**
+ * Wraps an element with <li></li>
+ * @param element	The element to wrap
+ * @return	An HTML li element
+ */
+function wrapWithli(element) {
+	var listItem = document.createElement("li");
+	listItem.appendChild(element);
+	return listItem;
+}
+
+/**
+ * Creates a button with a material icon.
+ * @param iconName	The name of the icon in the Materialize fontbook
+ * @param buttonColor	The Materialize color class for the button background
+ * @return	An HTML a element
+ */
+function createButtonForIcon(iconName, buttonColor) {
+	var outerLink = document.createElement("a");
+	var icon = document.createElement("i");
+
+	outerLink.setAttribute("class", "btn-floating " + buttonColor);
+	icon.setAttribute("class", "material-icons");
+
+	icon.innerHTML = iconName;
+	
+	outerLink.appendChild(icon);
+
+	return outerLink;
 }
 
 /**

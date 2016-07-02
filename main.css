@@ -4,6 +4,13 @@
 	text-align: center;
 }
 
+.fixed-action-btn {
+	position: absolute;
+	top: 0px;
+	right: 20px;
+	z-index: inherit;
+}
+
 .dropify-wrapper {
 	margin-top: 20px;
 }
