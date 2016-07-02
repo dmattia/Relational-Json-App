@@ -215,7 +215,10 @@ function createFormForSnapshot(snapshot) {
 			label.innerHTML = keyValuePairSnapshot.key;
 	
 			var updateFunction = function() {
-				keyValuePairSnapshot.ref.set(input.value);
+				keyValuePairSnapshot.ref.set(
+					parseFloat(input.value)
+					|| input.value
+				);
 			}
 			input.onkeydown = updateFunction;
 			input.oncut = updateFunction;
@@ -301,7 +304,16 @@ function createCellForSnapshot(snapshot) {
 			createAndShowModalForSnapshot(snapshot, createFormForSnapshot);
 		};
 	} else {
-		cell.innerHTML = snapshot.val();
+		var value = snapshot.val();
+		if (typeof value === 'string' && value.match(/\.(jpeg|jpg|gif|png)$/) != null) {
+			var image = document.createElement("img");
+			image.setAttribute("src", value);
+			image.style.display = "block";
+			image.style.width = "100%";
+			cell.appendChild(image);
+		} else {
+			cell.innerHTML = value;
+		}
 	}
 
 	return cell;
