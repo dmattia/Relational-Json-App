@@ -235,9 +235,12 @@ function createFormForSnapshot(snapshot) {
 function displayJson() {
 	$.ajax({
 		url: "https://relational-to-json.firebaseio.com/" + newDataBaseKey + 
-			".json?print=pretty&_=" + new Date().getTime(),
+			".json?print=pretty",
+		cache: false,
 		success: function(result) {
-			var modalId = "json-Output"
+			console.log(result);
+
+			var modalId = "json-Output" + new Date().getTime();
 		
 			var modal = document.createElement("div");
 			var modalContent = document.createElement("div");
