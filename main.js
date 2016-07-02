@@ -88,6 +88,8 @@ function startWatchingDatabase() {
 		});
 	});
 
+	firebase.database().ref().child(newDataBaseKey).onDisconnect().remove();
+
 	return newDataBaseKey;
 }
 
