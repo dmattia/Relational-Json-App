@@ -1,0 +1,23 @@
+#container {
+	margin-left: 5%;
+	margin-right: 5%;
+	text-align: center;
+}
+
+h2 {
+	text-decoration: underline;
+}
+
+table {
+	table-layout: fixed;
+	width: 100%;
+}
+
+td {
+	overflow: hidden;
+}
+
+.nav-wrapper {
+	margin-left: 5%;
+	margin-right: 5%;
+}
