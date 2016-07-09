@@ -4,6 +4,13 @@
 	text-align: center;
 }
 
+/**
+.lean-overlay {
+	opacity: 0.8 !important;
+	background-color: #3f3f3f;
+}
+*/
+
 .fixed-action-btn {
 	position: absolute;
 	top: 0px;

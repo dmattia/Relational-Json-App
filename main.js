@@ -279,10 +279,39 @@ function addObjectForTable(tableName) {
 	tableRef.child("Parameters").once('value', function(snapshot) {
 		// An array of keys this object can have
 		var keys = getKeysFromSnapshot(snapshot);
-		console.log(keys);
 
-		createModalForHTMLElement(createFormWithKeys(keys));
+		var form = createFormWithKeys(keys);
+
+		form.onsubmit = function() {
+			alert("hello");
+			return false;
+		}
+
+		createModalForHTMLElement(form);
 	});
+}
+
+/**
+ * Creates a button with specified text and icon
+ * @param text	The main text of the button
+ * @param icon	The name of the material icon
+ * @param type	The type of button ie) submit
+ * @return the button HTML element
+ */
+function createButtonWithIconAndType(text, icon, type) {
+	var button = document.createElement("button");
+	var iconElement = document.createElement("i");
+
+	button.setAttribute("class", "btn waves-effect waves-light");
+	button.setAttribute("type", type);
+	iconElement.setAttribute("class", "material-icons right");
+
+	button.innerHTML = text;
+	iconElement.innerHTML = icon;
+
+	button.appendChild(iconElement);
+
+	return button;
 }
 
 /**
@@ -291,10 +320,8 @@ function addObjectForTable(tableName) {
  * @return	The div element containing the form
  */
 function createFormWithKeys(keys) {
-	var outerDiv = document.createElement("div");
 	var form = document.createElement("form");
 
-	outerDiv.setAttribute("class", "row");
 	form.setAttribute("class", "col s12");
 
 	for (var keyIndex in keys) {
@@ -317,9 +344,9 @@ function createFormWithKeys(keys) {
 		formItem.appendChild(inputField);
 		form.appendChild(formItem);
 	}
+	form.appendChild(createButtonWithIconAndType("Submit", "send", "submit"));
 
-	outerDiv.appendChild(form);
-	return outerDiv;
+	return form;
 }
 
 /**
@@ -381,25 +408,46 @@ function displayJson() {
 			".json?print=pretty",
 		cache: false,
 		success: function(result) {
-			console.log(result);
-
 			var modalId = "json-Output" + new Date().getTime();
 		
 			var modal = document.createElement("div");
 			var modalContent = document.createElement("div");
 			var jsonContent = document.createElement("pre");
+			var codeContent = document.createElement("code");
 		
 			modal.setAttribute("class", "modal");
 			modal.setAttribute("id", modalId);
 			modalContent.setAttribute("class", "modal-content");
+			modalContent.style.backgroundColor = "#3f3f3f";
+			codeContent.style.fontFamily = "Cutive Mono, monospace";
 
-			jsonContent.innerHTML = JSON.stringify(result, null, 2);
+			codeContent.innerHTML = JSON.stringify(result, null, 2);
 		
+			jsonContent.appendChild(codeContent);
 			modalContent.appendChild(jsonContent);
 			modal.appendChild(modalContent);
 			document.getElementsByTagName('body')[0].appendChild(modal);
 		
-			$("#" + modalId).openModal();
+			// Enable Syntax highlighting
+			$(document).ready(function() {
+				$('pre code').each(function(i, block) {
+					hljs.highlightBlock(block);
+				});
+			});
+
+			$("#" + modalId).openModal({
+				dismissible: true,
+				opacity: 0.5,
+				in_duration: 300,
+				out_duration: 200,
+				ready: function() {},
+				complete: function() {
+					document.getElementById("container").style.webkitFilter = "none"; 
+					document.getElementsByClassName('navbar-fixed')[0].style.webkitFilter = "none"; 
+				}
+			});
+			document.getElementById("container").style.webkitFilter = "url('#blur')"; 
+			document.getElementsByClassName('navbar-fixed')[0].style.webkitFilter = "url('#blur')"; 
 		}
 	});
 }
@@ -417,7 +465,7 @@ function createModalForHTMLElement(content, id) {
 
 	modal.setAttribute("class", "modal");
 	modal.setAttribute("id", modalId);
-	modalContent.setAttribute("class", "modal-content");
+	modalContent.setAttribute("class", "modal-content row");
 
 	modalContent.appendChild(content);
 	modal.appendChild(modalContent);
