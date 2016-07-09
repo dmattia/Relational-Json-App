@@ -63,7 +63,9 @@ function setupFirebase() {
 var newDataBaseKey;
 function startWatchingDatabase() {
 	// Create new db branch to watch on
-	newDataBaseKey = firebase.database().ref().push().key;
+	//newDataBaseKey = firebase.database().ref().push().key;
+	newDataBaseKey = "-KMBMufXJTmH-lQ6Zfmd";
+	/*
 	var data = {}
 	data[newDataBaseKey] = {"Test Table" : {
 		"Row1": {
@@ -76,14 +78,15 @@ function startWatchingDatabase() {
 		}
 	}};
 	firebase.database().ref().update(data);
+	*/
 
 	firebase.database().ref().child(newDataBaseKey).on('value', function(snapshot) {
 		clearCurrentTable();
 		snapshot.forEach(function(childSnapshot) {
 			var tableDiv = document.createElement("div");
-			var table = createTableForSnapshot(childSnapshot);
+			var table = createTableForSnapshot(childSnapshot.child("Objects"));
 			var tableHeader = document.createElement("h2");
-			var buttonGroup = createButtonGroup();
+			var buttonGroup = createButtonGroupForTable(childSnapshot.key);
 
 			tableHeader.style.display = "inline";
 			tableDiv.style.margin = "20px";
@@ -98,7 +101,7 @@ function startWatchingDatabase() {
 		});
 	});
 
-	firebase.database().ref().child(newDataBaseKey).onDisconnect().remove();
+	//firebase.database().ref().child(newDataBaseKey).onDisconnect().remove();
 
 	return newDataBaseKey;
 }
@@ -107,7 +110,7 @@ function startWatchingDatabase() {
  * Creates a button group for editing a table.
  * @return	An HTML div element
  */
-function createButtonGroup() {
+function createButtonGroupForTable(tableName) {
 	var outerDiv = document.createElement("div");
 	var mainButton = document.createElement("a");
 	var mainButtonIcon = document.createElement("i");
@@ -121,9 +124,21 @@ function createButtonGroup() {
 	outerDiv.style.display = "inline";
 	
 	mainButtonIcon.innerHTML = "menu";
-	popOutLinks.appendChild(wrapWithli(createButtonForIcon("code", "blue")));
-	popOutLinks.appendChild(wrapWithli(createButtonForIcon("mode_edit", "green")));
-	popOutLinks.appendChild(wrapWithli(createButtonForIcon("settings", "yellow")));
+	var addObjectButton = createButtonForIcon("add", "green");
+	var editObjectButton = createButtonForIcon("edit", "yellow darken-2");
+	var removeObjectButton = createButtonForIcon("remove", "red");
+	var addParameterButton = createButtonForIcon("view_column", "blue");
+	var deleteTableButton = createButtonForIcon("delete", "red");
+
+	addObjectButton.onclick = function() {
+		addObjectForTable(tableName);
+	}
+
+	popOutLinks.appendChild(wrapWithli(addObjectButton));
+	popOutLinks.appendChild(wrapWithli(editObjectButton));
+	popOutLinks.appendChild(wrapWithli(removeObjectButton));
+	popOutLinks.appendChild(wrapWithli(addParameterButton));
+	popOutLinks.appendChild(wrapWithli(deleteTableButton));
 
 	mainButton.appendChild(mainButtonIcon);
 	outerDiv.appendChild(mainButton);
@@ -256,6 +271,58 @@ function createRowForSnapshot(snapshot) {
 }
 
 /**
+ * Displays a form for adding a child object to a table.
+ * @param tableName	The name of the table to add an object to
+ */
+function addObjectForTable(tableName) {
+	var tableRef = firebase.database().ref().child(newDataBaseKey).child(tableName);
+	tableRef.child("Parameters").once('value', function(snapshot) {
+		// An array of keys this object can have
+		var keys = getKeysFromSnapshot(snapshot);
+		console.log(keys);
+
+		createModalForHTMLElement(createFormWithKeys(keys));
+	});
+}
+
+/**
+ * Creates a form with textfields for each of the given keys.
+ * @param keys	The keys that need to be filled with values
+ * @return	The div element containing the form
+ */
+function createFormWithKeys(keys) {
+	var outerDiv = document.createElement("div");
+	var form = document.createElement("form");
+
+	outerDiv.setAttribute("class", "row");
+	form.setAttribute("class", "col s12");
+
+	for (var keyIndex in keys) {
+		var key = keys[keyIndex];
+
+		var formItem = document.createElement("div");
+		var inputField = document.createElement("div");
+		var input = document.createElement("input");
+		var label = document.createElement("label");
+
+		formItem.setAttribute("class", "row");
+		inputField.setAttribute("class", "input-field col s12");
+		input.setAttribute("type", "text");
+		input.setAttribute("id", key);
+		label.setAttribute("for", key);
+		label.innerHTML = key;
+
+		inputField.appendChild(input);
+		inputField.appendChild(label);
+		formItem.appendChild(inputField);
+		form.appendChild(formItem);
+	}
+
+	outerDiv.appendChild(form);
+	return outerDiv;
+}
+
+/**
  * Creates a form for editing a snapshot.
  * @param snapshot	A firebase snapshot for a row
  * @return	An HTML div element containing a form
@@ -338,12 +405,12 @@ function displayJson() {
 }
 
 /**
- * Creates a modal form for editing a row from snapshot data.
- * Then displays the modal to the window.
- * @param snapshot	A firebase snapshot
+ * Creates a modal with its main content being variable.
+ * @param content	The HTML content to fill the modal with
+ * @param id	The id to give this modal
  */
-function createAndShowModalForSnapshot(snapshot, functionName) {
-	var modalId = snapshot.key
+function createModalForHTMLElement(content, id) {
+	var modalId = id
 
 	var modal = document.createElement("div");
 	var modalContent = document.createElement("div");
@@ -352,11 +419,20 @@ function createAndShowModalForSnapshot(snapshot, functionName) {
 	modal.setAttribute("id", modalId);
 	modalContent.setAttribute("class", "modal-content");
 
-	modalContent.appendChild(functionName(snapshot));
+	modalContent.appendChild(content);
 	modal.appendChild(modalContent);
 	document.getElementsByTagName('body')[0].appendChild(modal);
 
 	$("#" + modalId).openModal();
+}
+
+/**
+ * Creates a modal form for editing a row from snapshot data.
+ * Then displays the modal to the window.
+ * @param snapshot	A firebase snapshot
+ */
+function createAndShowModalForSnapshot(snapshot, functionName) {
+	createModalForHTMLElement(functionName(snapshot), snapshot.key);
 }
 
 /**
