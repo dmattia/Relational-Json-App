@@ -276,18 +276,38 @@ function createRowForSnapshot(snapshot) {
  */
 function addObjectForTable(tableName) {
 	var tableRef = firebase.database().ref().child(newDataBaseKey).child(tableName);
+	var objectRef = tableRef.child("Objects")
+	var parameterRef = tableRef.child("Parameters")
+
 	tableRef.child("Parameters").once('value', function(snapshot) {
 		// An array of keys this object can have
 		var keys = getKeysFromSnapshot(snapshot);
 
 		var form = createFormWithKeys(keys);
 
-		form.onsubmit = function() {
-			alert("hello");
+		createModalForHTMLElement(form, snapshot.key);
+
+		form.onsubmit = function(e) {
+			var newObjectKey = objectRef.push().key;
+
+			// Update Objects for table
+			var valueDict = {}
+			for (var key in keys) {
+				var paramValue = parseFloat(form[key].value) || form[key].value;
+				valueDict[keys[key]] = paramValue;
+
+				// Update Parameters table for this parameter
+				var dict = {}
+				dict[newObjectKey] = paramValue;
+				parameterRef.child(keys[key]).child("Objects").update(dict);
+			}
+			var data = {}
+			data[newObjectKey] = valueDict
+			tableRef.child("Objects").update(data);
+
+			$('#' + snapshot.key).closeModal();
 			return false;
 		}
-
-		createModalForHTMLElement(form);
 	});
 }
 
@@ -456,6 +476,7 @@ function displayJson() {
  * Creates a modal with its main content being variable.
  * @param content	The HTML content to fill the modal with
  * @param id	The id to give this modal
+ * @return	The modal jqeuery element, so that it can be closed.
  */
 function createModalForHTMLElement(content, id) {
 	var modalId = id
